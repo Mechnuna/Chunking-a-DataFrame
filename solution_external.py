@@ -5,7 +5,8 @@
       ~ O(число уникальных значений column), а НЕ O(число строк) — для
       временных рядов с повторами это обычно на порядки меньше исходных
       данных.
-  Между проходами — на этих маленьких агрегированных counts тем же жадным алгоритмом, что и в solution.py,
+  Между проходами — на этих маленьких агрегированных counts тем же жадным алгоритмом,
+  что и в solution.py,
       определяем, какому результирующему чанку принадлежит каждое
       уникальное значение.
   Проход 2 — раскладываем строки по
@@ -19,8 +20,8 @@ from __future__ import annotations
 
 import tempfile
 from collections import Counter
+from collections.abc import Callable, Iterable, Iterator
 from pathlib import Path
-from typing import Callable, Iterable, Iterator
 
 import pandas as pd
 
