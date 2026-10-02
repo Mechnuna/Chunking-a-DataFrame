@@ -7,9 +7,7 @@ from solution import iter_chunks_by_column
 
 
 def _make_df(seconds):
-    return pd.DataFrame({
-        "dt": pd.to_datetime(seconds, unit="s", origin="2023-01-01")
-    })
+    return pd.DataFrame({"dt": pd.to_datetime(seconds, unit="s", origin="2023-01-01")})
 
 
 EXAMPLE = [1, 1, 2, 2, 2, 3]

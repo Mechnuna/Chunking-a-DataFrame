@@ -8,16 +8,26 @@ from solution_external import iter_chunks_external
 
 
 def _make_df(seconds):
-    return pd.DataFrame({
-        "dt": pd.to_datetime(seconds, unit="s", origin="2023-01-01"),
-        "payload": range(len(seconds)),
-    })
+    return pd.DataFrame(
+        {
+            "dt": pd.to_datetime(seconds, unit="s", origin="2023-01-01"),
+            "payload": range(len(seconds)),
+        }
+    )
 
 
 # ---------- Случай А: не отсортировано, но помещается в память ----------
 
+
 def test_sort_helper_then_chunk_matches_sorted_baseline():
-    seconds = [1, 3, 2, 1, 2, 2]  # тот же мультисет значений, что в примере, но вразнобой
+    seconds = [
+        1,
+        3,
+        2,
+        1,
+        2,
+        2,
+    ]  # тот же мультисет значений, что в примере, но вразнобой
     df = _make_df(seconds)
     df_sorted = sort_by_column_for_chunking(df, "dt")
 
@@ -25,7 +35,9 @@ def test_sort_helper_then_chunk_matches_sorted_baseline():
     assert len(df_sorted) == len(df)
     assert sorted(df_sorted["payload"].tolist()) == sorted(df["payload"].tolist())
 
-    sizes = [len(c) for c in iter_chunks_by_column(df_sorted, "dt", 2, assume_sorted=True)]
+    sizes = [
+        len(c) for c in iter_chunks_by_column(df_sorted, "dt", 2, assume_sorted=True)
+    ]
     assert sizes == [2, 3, 1]
 
 
@@ -41,9 +53,14 @@ def test_sort_helper_random_data_roundtrip(seed):
     rng = random.Random(seed)
     seconds = [rng.randint(0, 5) for _ in range(50)]
     df = _make_df(seconds)
-    chunks = list(iter_chunks_by_column(
-        sort_by_column_for_chunking(df, "dt"), "dt", 4, assume_sorted=True,
-    ))
+    chunks = list(
+        iter_chunks_by_column(
+            sort_by_column_for_chunking(df, "dt"),
+            "dt",
+            4,
+            assume_sorted=True,
+        )
+    )
     assert sum(len(c) for c in chunks) == len(df)
     for prev, nxt in zip(chunks, chunks[1:]):
         assert prev["dt"].max() < nxt["dt"].min()
@@ -51,16 +68,25 @@ def test_sort_helper_random_data_roundtrip(seed):
 
 # ---------- Случай Б: не отсортировано и не помещается в память (эмуляция) ----------
 
+
 def _batches_factory(seconds, batch_size=2):
     def factory():
         df = _make_df(seconds)
         for start in range(0, len(df), batch_size):
-            yield df.iloc[start:start + batch_size]
+            yield df.iloc[start : start + batch_size]
+
     return factory
 
 
 def test_external_partitioning_matches_in_memory_baseline(tmp_path):
-    seconds = [3, 1, 1, 2, 2, 2]  # та же мультисет-группировка, что и в примере, вразнобой
+    seconds = [
+        3,
+        1,
+        1,
+        2,
+        2,
+        2,
+    ]  # та же мультисет-группировка, что и в примере, вразнобой
     factory = _batches_factory(seconds, batch_size=2)
 
     paths = list(iter_chunks_external(factory, "dt", 2, tmp_dir=str(tmp_path)))

@@ -64,7 +64,7 @@ for chunk_path in iter_chunks_external(batches, "dt", chunk_size=100_000):
 ## Запуск тестов
 
 ```bash
-pip install pandas pytest
+pip install -r requirements.txt
 pytest -v
 ```
 
